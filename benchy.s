@@ -8,6 +8,7 @@ GPIOC_BASE         EQU      0x40011000   ; port c
 GPIOC_CRH         EQU     GPIOC_BASE+0x04
 GPIOC_CRL         EQU     GPIOC_BASE
 GPIOC_ODR     EQU        GPIOC_BASE+0x0C
+GPIOC_IDR     EQU        GPIOC_BASE+0x08
 
 
 
@@ -41,7 +42,6 @@ __main FUNCTION
 	;FINAL TODO: CALL FUNCTION SETUP
 	BL SETUP
 
-
     BL TEST_A
 	BL TEST_B
 	BL TEST_C
@@ -74,7 +74,7 @@ SETUP  FUNCTION
     STR R2, [R0]
 
     ; Configure PORT A AS OUTPUT (HIGHER 8 PINS)
-    LDR R0, =GPIOC_CRH           ; Address of GPIOC_CRH register
+    LDR R0, =GPIOA_CRH           ; Address of GPIOC_CRH register
     MOV R2, #0x33333333     ;ALL 8 LOWER PINS OF PORT A AS OUTPUT WITH MAX SPEED OF 50 MHZ
     STR R2, [R0]                 ; Write the updated value back to GPIOC_CRH
 
