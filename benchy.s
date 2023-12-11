@@ -16,6 +16,9 @@ GPIOA_BASE      EQU     0x40010800
 GPIOA_CRH         EQU     GPIOA_BASE+0x04
 GPIOA_CRL         EQU     GPIOA_BASE
 GPIOA_ODR     EQU        GPIOA_BASE+0x0C
+	
+AFIO_BASE		EQU		0x40010000
+AFIO_MAPR	EQU		AFIO_BASE + 0x04
 
 
 
@@ -42,6 +45,7 @@ __main FUNCTION
 	;FINAL TODO: CALL FUNCTION SETUP
 	BL SETUP
 
+
     BL TEST_A
 	BL TEST_B
 	BL TEST_C
@@ -67,6 +71,20 @@ SETUP  FUNCTION
 	MOV R2, #1
     ORR R1, R1, R2, LSL #2        ; Set bit 2 to enable GPIOA clock
     STR R1, [R0]                 ; Write the updated value back to RCC_APB2ENR
+	
+	
+	LDR R0, =RCC_APB2ENR         ; Address of RCC_APB2ENR register
+    LDR R1, [R0]                 ; Read the current value of RCC_APB2ENR
+	MOV R2, #1
+    ORR R1, R1, R2        		; Set bit 0 to enable afio
+    STR R1, [R0]                 ; Write the updated value back to RCC_APB2ENR
+	
+	
+	
+	LDR R0, =AFIO_MAPR
+	MOV R2, #1
+	LSL R2, #25
+	STR R2, [R0]
     
     ; Configure PORT A AS OUTPUT (LOWER 8 PINS)
     LDR R0, =GPIOA_CRL                  
@@ -89,7 +107,7 @@ SETUP  FUNCTION
     
     ; Configure PC13 as output push-pull 
     LDR R0, =GPIOC_CRH           ; Address of GPIOC_CRH register
-    MOV R2, #0x33333333      ; Set mode bits for pin 13 (output mode, max speed 50 MHz)
+    MOV R2, #0x88888888      ; Set mode bits for pin 13 (output mode, max speed 50 MHz)
     STR R2, [R0]                 ; Write the updated value back to GPIOC_CRH
 
     ; Configure PC13 as output push-pull 
@@ -107,9 +125,7 @@ SETUP  FUNCTION
     
     
     LDR R0, =GPIOB_CRL           ; Address of GPIOC_CRL register
-    LDR R1, [R0]                 ; Read the current value of GPIOC_CRH
-    AND R1, R1, #0x00FFFFFF      ; Clear the configuration bits for pin 13 (CLEAR THE BITS 23,22,21,20)
-    ORR R1, R1, #0x33000000      ; Set mode bits for pin 13 (output mode, max speed 50 MHz)
+    MOV R1, #0x33333333
     STR R1, [R0]                 ; Write the updated value back to GPIOC_CRH
 
 
@@ -191,7 +207,7 @@ delay_1_second FUNCTION
     PUSH {R0, LR}               ; Push R4 and Link Register (LR) onto the stack
     LDR R0, =INTERVAL           ; Load the delay count
 DelayInner_Loop
-        SUBS R0, #1             ; Decrement the delay count
+        SUBS R0, #2             ; Decrement the delay count
 		cmp	R0, #0
         BGT DelayInner_Loop     ; Branch until the count becomes zero
     
